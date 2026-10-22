@@ -1,0 +1,24 @@
+name: Proposer une idée
+description: Une nouvelle mesure, une amélioration de l'interface, une idée pour le Norfendre
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: besoin
+    attributes:
+      label: Le besoin
+      description: Quelle situation en jeu cette idée améliorerait-elle ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: idee
+    attributes:
+      label: L'idée
+      description: Comment l'imaginez-vous ? Une capture ou un croquis aident beaucoup.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Autres solutions envisagées

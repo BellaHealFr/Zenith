@@ -1,0 +1,77 @@
+name: Signaler un problème
+description: Erreur Lua, chiffres différents entre joueurs, chiffre faux, affichage cassé
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de prendre le temps de signaler ce problème ! Plus la description est précise, plus vite il sera corrigé.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type de problème
+      options:
+        - Erreur Lua (fenêtre d'erreur)
+        - Chiffres différents entre deux joueurs
+        - Chiffre qui me semble faux
+        - Affichage ou interface
+        - Autre
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version de Zénith
+      description: Affichée en bas à gauche du panneau d'options (/zenith).
+      placeholder: "1.10.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Ce qui se passe
+      description: Pour un écart entre joueurs, indiquez la version de Zénith de chacun et joignez une capture des deux fenêtres sur le même combat.
+    validations:
+      required: true
+
+  - type: textarea
+    id: attendu
+    attributes:
+      label: Ce qui devrait se passer
+
+  - type: textarea
+    id: etapes
+    attributes:
+      label: Comment le reproduire
+      placeholder: |
+        1. Rejoindre un raid de 10…
+        2. Engager le boss…
+        3. …
+
+  - type: dropdown
+    id: situation
+    attributes:
+      label: Situation
+      options:
+        - Seul
+        - Groupe de 5
+        - Raid 10
+        - Raid 25
+        - Champ de bataille ou arène
+        - Autre
+
+  - type: textarea
+    id: erreur
+    attributes:
+      label: Message d'erreur Lua
+      description: S'il y en a un. Pour afficher les erreurs dans le jeu, tapez `/console scriptErrors 1`.
+      render: text
+
+  - type: textarea
+    id: addons
+    attributes:
+      label: Autres addons installés
+      description: Surtout les autres compteurs ou les addons de boss (DBM, BigWigs…).

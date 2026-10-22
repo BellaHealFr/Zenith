@@ -1,0 +1,46 @@
+name: Publication
+
+# Une étiquette vX.Y.Z envoyée sur GitHub publie la version : archive prête à
+# installer (dossier Zenith/ à la racine) et notes tirées de CHANGELOG.md.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  publier:
+    name: Créer la version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vérifier le numéro de version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          core=$(sed -n 's/.*Z\.version = "\([^"]*\)".*/\1/p' Core.lua)
+          toc=$(sed -n 's/^## Version: *\([^[:space:]]*\).*/\1/p' Zenith.toc | tr -d '\r')
+          echo "Étiquette : $tag, Core.lua : $core, Zenith.toc : $toc"
+          [ "$tag" = "$core" ] && [ "$tag" = "$toc" ] || { echo "::error::L'étiquette ne correspond pas aux numéros de version du code"; exit 1; }
+          echo "VERSION=$tag" >> "$GITHUB_ENV"
+
+      - name: Extraire les notes de version
+        run: |
+          awk -v v="## $VERSION" '$0==v{f=1;next} /^## /{if(f)exit} f' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "::error::Aucune section « $VERSION » dans CHANGELOG.md"; exit 1; }
+          cat >> notes.md <<'EOF'
+
+          ---
+          **Installation** : téléchargez l'archive `Zenith-*.zip` ci-dessous (pas « Source code »), quittez complètement le jeu, décompressez-la dans `World of Warcraft/Interface/AddOns/`, puis relancez le jeu.
+          EOF
+
+      - name: Construire l'archive
+        run: git archive --format=zip --prefix=Zenith/ -o "Zenith-$VERSION.zip" HEAD
+
+      - name: Publier
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Zénith ${{ github.ref_name }}
+          body_path: notes.md
+          files: Zenith-*.zip

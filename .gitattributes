@@ -1,0 +1,14 @@
+# Textes en fins de ligne LF dans le dépôt, quel que soit le système
+* text=auto eol=lf
+
+# Images : jamais converties
+*.tga binary
+*.blp binary
+*.png binary
+*.jpg binary
+
+# Hors de l'archive d'installation (git archive, utilisée par la publication)
+.github export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+.editorconfig export-ignore

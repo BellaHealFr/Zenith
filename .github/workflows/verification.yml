@@ -1,0 +1,42 @@
+name: Vérification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verifier:
+    name: Syntaxe, fichiers et versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Lua 5.1 (version du client 3.3.5)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lua5.1
+
+      - name: Syntaxe Lua 5.1
+        run: luac5.1 -p *.lua
+
+      - name: Fichiers déclarés dans Zenith.toc
+        run: |
+          grep -E '\.lua$' Zenith.toc | tr -d '\r' | while read -r f; do
+            [ -f "$f" ] || { echo "::error::Fichier déclaré mais absent : $f"; exit 1; }
+          done
+          for f in *.lua; do
+            grep -qxF "$f" <(tr -d '\r' < Zenith.toc) || { echo "::error::Fichier absent du .toc : $f"; exit 1; }
+          done
+
+      - name: Cohérence des numéros de version
+        run: |
+          core=$(sed -n 's/.*Z\.version = "\([^"]*\)".*/\1/p' Core.lua)
+          toc=$(sed -n 's/^## Version: *\([^[:space:]]*\).*/\1/p' Zenith.toc | tr -d '\r')
+          echo "Core.lua : $core, Zenith.toc : $toc"
+          [ "$core" = "$toc" ] || { echo "::error::Versions différentes entre Core.lua et Zenith.toc"; exit 1; }
+          grep -qx "## $core" CHANGELOG.md || { echo "::error::Aucune section « $core » dans CHANGELOG.md"; exit 1; }
+
+      - name: En-tête de licence dans chaque fichier Lua
+        run: |
+          for f in *.lua; do
+            head -n 1 "$f" | grep -q 'Copyright (C) .* BellaHealFr' || { echo "::error::En-tête de licence manquant : $f"; exit 1; }
+          done

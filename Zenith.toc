@@ -1,0 +1,20 @@
+## Interface: 30300
+## Title: |cff33d6ffZénith|r - Compteur de combat
+## Notes: Compteur de dégâts et de soins nouvelle génération pour 3.3.5 : interface moderne, relecture des combats, records personnels, analyse automatique.
+## Author: BellaHealFr
+## X-License: GPL-3.0-only (voir LICENSE et NOTICE.md)
+## Version: 1.10.3
+## SavedVariables: ZenithDB
+## SavedVariablesPerCharacter: ZenithCharDB
+## X-Category: Combat
+
+Core.lua
+Bosses.lua
+Spec.lua
+Combat.lua
+Sync.lua
+Modes.lua
+UI.lua
+Window.lua
+Detail.lua
+Options.lua
