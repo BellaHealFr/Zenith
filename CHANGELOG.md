@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 1.10.4
+
+### Corrections
+- Spécialisations mal attribuées en groupe : quand un autre addon (ou le joueur) inspectait quelqu'un pendant une inspection de Zénith, les talents reçus pouvaient être rangés au nom du mauvais joueur. Un chaman Restauration pouvait ainsi apparaître avec l'icône du druide Restauration, et toute classe pouvait hériter des icônes, de la spécialisation ou du rôle d'une autre. Les talents d'une autre classe sont désormais rejetés, tout comme une réponse dont le destinataire est incertain.
+- Les icônes de spécialisation enregistrées sont relues une fois pour effacer celles qui avaient été faussées.
+
 ## 1.10.3
 
 ### Ajouts

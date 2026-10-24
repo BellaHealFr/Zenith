@@ -12,7 +12,7 @@ ns.Z = Z
 _G.Zenith = Z
 
 Z.name = ADDON
-Z.version = "1.10.3"
+Z.version = "1.10.4"
 Z.MEDIA = "Interface\\AddOns\\" .. ADDON .. "\\Media\\"
 Z.SCHEMA = 2
 

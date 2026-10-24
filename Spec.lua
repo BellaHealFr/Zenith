@@ -115,20 +115,27 @@ end
 local function ReadTabs(guid, class, inspect)
 	if not guid or not class then return false end
 	local group = GetActiveTalentGroup(inspect)
-	local best, bestPts, total = nil, -1, 0
+	local prefix = class:lower()
+	local best, bestPts, total, read = nil, -1, 0, {}
+	for i = 1, 3 do
+		local _, icon, points, background = GetTalentTabInfo(i, inspect, false, group)
+		-- Le fond de l'arbre, jamais traduit, commence par la classe (« ShamanRestoration »,
+		-- « DruidRestoration ») : des talents d'une autre classe sont ceux d'un autre joueur,
+		-- reçus en retard ou demandés entre-temps par un autre addon.
+		if type(background) == "string" and background ~= ""
+			and background:lower():sub(1, #prefix) ~= prefix then return false end
+		points = points or 0
+		total = total + points
+		if points > bestPts then best, bestPts = i, points end
+		if type(icon) == "string" and icon ~= "" then read[i] = icon end
+	end
+	if total <= 0 then return false end
 	local icons = Z.db.specIcons[class]
 	if not icons then
 		icons = {}
 		Z.db.specIcons[class] = icons
 	end
-	for i = 1, 3 do
-		local _, icon, points = GetTalentTabInfo(i, inspect, false, group)
-		points = points or 0
-		total = total + points
-		if points > bestPts then best, bestPts = i, points end
-		if type(icon) == "string" and icon ~= "" then icons[i] = icon end
-	end
-	if total <= 0 then return false end
+	for i, icon in pairs(read) do icons[i] = icon end
 	specOf[guid] = best
 	specSure[guid] = GetTime()
 	return true
@@ -146,6 +153,8 @@ end
 
 local pending          -- inspection en attente de réponse : { guid, unit, t }
 local lastNotify       -- dernier joueur inspecté, par Zénith ou par un autre addon
+local answered = true  -- la dernière inspection demandée a reçu sa réponse
+local mixed = false    -- deux joueurs inspectés coup sur coup : la prochaine réponse est ambiguë
 local lastTry = {}     -- guid -> heure du dernier essai
 local REFRESH = 900    -- les talents sont relus au bout d'un quart d'heure
 local RETRY = 30
@@ -223,8 +232,12 @@ local function InspectReady()
 	-- Le jeu ne dit pas à qui appartiennent les talents reçus : ce sont ceux du
 	-- dernier joueur inspecté, que la demande vienne de Zénith, du joueur ou d'un
 	-- autre addon. Une inspection lancée par ailleurs profite donc aussi à Zénith.
+	-- Si un autre joueur a été inspecté avant que la réponse précédente n'arrive,
+	-- celle-ci peut concerner l'un comme l'autre : elle est ignorée.
+	local ambiguous = mixed
+	mixed, answered = false, true
 	local guid = lastNotify or (ours and ours.guid)
-	if not guid or guid == Z.playerGUID then return end
+	if ambiguous or not guid or guid == Z.playerGUID then return end
 	local r = Z.roster[guid]
 	if not r or not r.class then return end
 	if r.unit and UnitGUID(r.unit) ~= guid then return end
@@ -238,10 +251,16 @@ local function InspectReady()
 end
 
 function Z:InitSpec()
-	if type(Z.db.specIcons) ~= "table" then Z.db.specIcons = {} end
+	-- Avant 1.10.4, une inspection mal attribuée pouvait ranger les icônes d'une classe
+	-- sous une autre (un chaman Restauration affiché avec l'icône du druide) : elles
+	-- sont relues une fois.
+	if type(Z.db.specIcons) ~= "table" or Z.db.specIconsRev ~= 1 then Z.db.specIcons = {} end
+	Z.db.specIconsRev = 1
 	-- Profiter aussi des inspections lancées par le joueur ou par d'autres addons.
 	hooksecurefunc("NotifyInspect", function(unit)
-		lastNotify = unit and UnitGUID(unit) or nil
+		local guid = unit and UnitGUID(unit) or nil
+		if not answered and guid ~= lastNotify then mixed = true end
+		lastNotify, answered = guid, false
 	end)
 	Z.INSPECT_TALENT_READY = InspectReady
 	Z.PLAYER_TALENT_UPDATE = Z.ReadOwnSpec

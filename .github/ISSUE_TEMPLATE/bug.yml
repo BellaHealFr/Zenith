@@ -25,7 +25,7 @@ body:
     attributes:
       label: Version de Zénith
       description: Affichée en bas à gauche du panneau d'options (/zenith).
-      placeholder: "1.10.3"
+      placeholder: "1.10.4"
     validations:
       required: true
 

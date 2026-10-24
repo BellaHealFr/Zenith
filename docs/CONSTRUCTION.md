@@ -2,7 +2,7 @@
 
 Ce document décrit comment Zénith est construit : ses objectifs, son architecture, les algorithmes de chaque module et les raisons des choix faits. Il s'adresse à qui veut comprendre le code, le vérifier ou y contribuer.
 
-Version décrite : **1.10.3**.
+Version décrite : **1.10.4**.
 
 ## Sommaire
 
@@ -313,7 +313,8 @@ Trois sources, de la plus sûre à la moins sûre :
    - une inspection à la fois ;
    - un nouvel essai au bout de 30 s ;
    - les talents sont relus au bout de 15 min ;
-   - la fenêtre d'inspection du joueur reste prioritaire, et une inspection lancée par un autre addon profite aussi à Zénith.
+   - la fenêtre d'inspection du joueur reste prioritaire, et une inspection lancée par un autre addon profite aussi à Zénith ;
+   - le jeu ne dit pas à qui appartiennent les talents reçus : ils sont rejetés si leurs arbres ne sont pas ceux de la classe attendue (le fond de chaque arbre, jamais traduit, commence par la classe : `ShamanRestoration`, `DruidRestoration`), ou si un autre joueur a été inspecté avant l'arrivée de la réponse.
 
    Si **LibGroupTalents** est déjà chargée, Zénith l'interroge au lieu d'inspecter, pour ne pas faire concurrence à sa file.
 3. **Les sorts signatures** vus dans le journal : sorts accessibles par un seul arbre de talents, comparés par nom.
